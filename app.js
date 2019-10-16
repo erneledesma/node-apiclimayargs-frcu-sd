@@ -1,5 +1,8 @@
 const axios = require('axios');
 
+const lugar = require('./lugar/lugar')
+const clima = require('./clima/clima')
+
 
 const argv = require('yargs').options({
     direccion: {
@@ -9,25 +12,27 @@ const argv = require('yargs').options({
     }
 }).argv;
 
+const getInfo = async(direccion ) => {
 
-const encodeUrl = encodeURI(argv.direccion);
+  try {
+    const coords = await lugar.getLugarLatLng(direccion);
+    const temp = await clima.getClima(coords.lat, coords.lng);
+    return `El clima de ${coords.direccion} es de ${temp}`
+  } catch (e) {
+    return `No se pudo determinar el clima de ${direccion}`
+  }
 
-console.log(encodeUrl);
+}
 
-    const instance = axios.create({
-        baseURL: `https://devru-latitude-longitude-find-v1.p.rapidapi.com/latlon.php?location=${encodeUrl}`,
-        headers: {'X-RapidAPI-Key': 'YrIv9XHJxmmshCBitpg1YTAnahQSp1KbdHhjsnSBU1hvMDMlzK'}
-      });
-    
-     instance.get()
-        .then(resp => {
-          console.log(resp.data.Results[0]);
-          
-        })
-        .catch( err =>{
-          console.log('Error!!', err);
-          
-        })
+getInfo(argv.direccion)
+.then(console.log)
+.catch(console.log);
 
-      
+
+
+
+// clima.getClima(40.750000, -74.00000)
+// .then(console.log)
+// .catch(console.log)
+
 
